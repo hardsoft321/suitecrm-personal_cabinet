@@ -57,23 +57,26 @@ if(!empty($_POST['register'])) {
         $user->first_name = $_POST['first_name'];
     }
 
-    if(!empty(trim($_POST['last_name']))) {
-        $user->last_name = trim($_POST['last_name']);
+    $last_name = trim($_POST['last_name']);
+    if(!empty($last_name)) {
+        $user->last_name = $last_name;
     }
     else {
         $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_LAST_NAME', 'Users');
     }
 
-    if(!empty(trim($_POST['org_name']))) {
-        $account->name =trim($_POST['org_name']);
+    $org_name = trim($_POST['org_name']);
+    if(!empty($org_name)) {
+        $account->name = $org_name;
     }
     else {
         $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_ORG_NAME', 'Users');
     }
 
-    if(!empty(trim($_POST['email']))) {
-        $user->user_name = trim($_POST['email']);
-        $user->email1 = trim($_POST['email']);
+    $email = trim($_POST['email']);
+    if(!empty($email)) {
+        $user->user_name = $email;
+        $user->email1 = $email;
     }
     else {
         $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_EMAIL_ADDRESS_PRIMARY');
