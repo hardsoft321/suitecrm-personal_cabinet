@@ -12,6 +12,7 @@ function post_install() {
         'dedicated_bean_role_default' => findIdByName('ACLRoles', 'default'),
         'default_theme' => 'SuiteR-PC',
         'securitysuite_inherit_creator' => true,
+        'securitysuite_user_popup' => false,
         'calculate_response_time' => false,
     );
     foreach($newConfig as $name => $value) {
