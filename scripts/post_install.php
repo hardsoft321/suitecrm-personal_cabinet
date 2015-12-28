@@ -13,6 +13,7 @@ function post_install() {
         'default_theme' => 'SuiteR-PC',
         'securitysuite_inherit_creator' => true,
         'securitysuite_user_popup' => false,
+        'securitysuite_filter_user_list' => true,
         'calculate_response_time' => false,
     );
     foreach($newConfig as $name => $value) {
