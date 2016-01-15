@@ -1,5 +1,9 @@
 <?php
 $mod_strings['LBL_ORG_NAME'] = 'Название организации';
+$mod_strings['LBL_ORG_CODE'] = 'Код организации';
+$mod_strings['LBL_ORG_CREATE'] = 'Добавить организацию';
+$mod_strings['LBL_ORG_JOIN'] = 'Присоединиться';
+$mod_strings['ERR_NOT_VALID_ORG_CODE'] = 'Организация не найдена';
 $mod_strings['LBL_REGISTER_BTN'] = 'Зарегистрироваться';
 $mod_strings['ERR_CAPTCHA_FAILED'] = 'Проверка reCAPTCHA не пройдена';
 $mod_strings['ERR_EMAIL_USER_EXISTS'] = 'Пользователь с указанным email уже существует. Нельзя создать ещё одного пользователя с таким же email.';

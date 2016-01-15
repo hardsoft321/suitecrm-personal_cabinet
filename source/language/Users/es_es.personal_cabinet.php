@@ -1,5 +1,9 @@
 <?php
 $mod_strings['LBL_ORG_NAME'] = 'Nombre de la Organización';
+$mod_strings['LBL_ORG_CODE'] = 'Código de organización';
+$mod_strings['LBL_ORG_CREATE'] = 'Nueva organización';
+$mod_strings['LBL_ORG_JOIN'] = 'Unirse';
+$mod_strings['ERR_NOT_VALID_ORG_CODE'] = 'Organización no encontrado';
 $mod_strings['LBL_REGISTER_BTN'] = 'Registrar';
 $mod_strings['ERR_CAPTCHA_FAILED'] = 'reCAPTCHA fracasó';
 $mod_strings['ERR_EMAIL_USER_EXISTS'] = 'El nombre de usuario para la base de datos ya existe -- no se puede crear otro con el mismo nombre.';

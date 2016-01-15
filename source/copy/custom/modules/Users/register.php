@@ -47,7 +47,9 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
  ********************************************************************************/
 
 $user = BeanFactory::newBean('Users');
-$account = BeanFactory::newBean('Accounts');
+$account = null;
+$org_name = null;
+$org_code = null;
 $errors = array();
 $admin = new Administration();
 $admin->retrieveSettings('captcha');
@@ -65,12 +67,42 @@ if(!empty($_POST['register'])) {
         $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_LAST_NAME', 'Users');
     }
 
+    $org_action = trim($_POST['org_action']);
     $org_name = trim($_POST['org_name']);
-    if(!empty($org_name)) {
-        $account->name = $org_name;
+    $org_code = trim($_POST['org_code']);
+    if(empty($org_action)) {
+        $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_ORG_NAME', 'Users');
     }
     else {
-        $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_ORG_NAME', 'Users');
+        if($org_action == 'create') {
+            if(empty($org_name)) {
+                $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_ORG_NAME', 'Users');
+            }
+        }
+        else if($org_action == 'join') {
+            if(empty($org_code)) {
+                $errors[] = translate('ERR_MISSING_REQUIRED_FIELDS').' '.translate('LBL_ORG_CODE', 'Users');
+            }
+            else {
+                //TODO: пока $org_code представляет код контрагента в бэке
+                require_once 'custom/include/S2S_Integration/S2S_DBManagerFactory.php';
+                register_shutdown_function('S2S_DBManagerFactory::disconnectAll');
+                $extDb = S2S_DBManagerFactory::getInstance('back');
+                $extAccount = BeanFactory::newBean('Accounts');
+                $extAccount->db = $extDb;
+                $extAccount = $extAccount->retrieve_by_string_fields(array('uniq_id' => $org_code));
+                if(!$extAccount || $extAccount->external_source) {
+                    $errors[] = translate('ERR_NOT_VALID_ORG_CODE', 'Users');
+                }
+                else {
+                    $account = BeanFactory::newBean('Accounts')->retrieve_by_string_fields(array('register_org_code' => $org_code));
+                    $org_name = $extAccount->name;
+                }
+            }
+        }
+        else {
+            $errors[] = 'Unknown org action';
+        }
     }
 
     $email = trim($_POST['email']);
@@ -115,19 +147,38 @@ if(!empty($_POST['register'])) {
         $user->employee_status = 'Active';
         $user->save();
 
-        $account->assigned_user_id = $user->id;
-        $account->save();
+        $groups = array();
+        if($account) {
+            $account->load_relationship('SecurityGroups');
+            $groups = $account->SecurityGroups->getBeans();
+        }
+        else {
+            $account = BeanFactory::newBean('Accounts');
+            if($org_name) {
+                $account->name = $org_name;
+            }
+            if($org_code) {
+                $account->register_org_code = $org_code;
+            }
+            $account->assigned_user_id = $user->id;
+            $account->save();
 
-        if($user->load_relationship('SecurityGroups')) {
             $group = BeanFactory::newBean('SecurityGroups');
             $group->name = 'USER_'.$user->id;
             $group->save();
-            $user->SecurityGroups->add($group);
-            $user->save();
+            $groups = array($group);
+
             if($account->load_relationship('SecurityGroups')) {
                 $account->SecurityGroups->add($group);
                 $account->save();
             }
+        }
+
+        if($user->load_relationship('SecurityGroups')) {
+            foreach($groups as $group) {
+                $user->SecurityGroups->add($group);
+            }
+            $user->save();
         }
 
         $result = $user->sendEmailForPassword($GLOBALS['sugar_config']['passwordsetting']['generatepasswordtmpl'], array(
@@ -196,14 +247,31 @@ if(isset($_REQUEST['loginErrorMessage'])) {
     }
 }
 
-if(!empty($_POST['register'])) {
+$sugar_smarty->assign('REG_ORG_ACTION', 'create');
+if(!empty($_REQUEST['first_name'])) {
     $sugar_smarty->assign('REG_FIRST_NAME', $_REQUEST['first_name']);
+}
+if(!empty($_REQUEST['last_name'])) {
     $sugar_smarty->assign('REG_LAST_NAME', $_REQUEST['last_name']);
+}
+if(!empty($_REQUEST['org_action'])) {
+    $sugar_smarty->assign('REG_ORG_ACTION', $_REQUEST['org_action']);
+}
+if(!empty($_REQUEST['org_name'])) {
     $sugar_smarty->assign('REG_ORG_NAME', $_REQUEST['org_name']);
+}
+if(!empty($_REQUEST['org_code'])) {
+    $sugar_smarty->assign('REG_ORG_CODE', $_REQUEST['org_code']);
+}
+if(!empty($_REQUEST['email'])) {
     $sugar_smarty->assign('REG_EMAIL', $_REQUEST['email']);
 }
 $sugar_smarty->assign('USER_FIELD_DEFS', $user->getFieldDefinitions());
-$sugar_smarty->assign('ACC_FIELD_DEFS', $account->getFieldDefinitions());
+$sugar_smarty->assign('ACC_FIELD_DEFS', BeanFactory::newBean('Accounts')->getFieldDefinitions());
+$sugar_smarty->assign('ORG_ACTION_OPTION', array(
+    'create' => translate('LBL_ORG_CREATE', 'Users'),
+    'join' => translate('LBL_ORG_JOIN', 'Users'),
+));
 
 $mod_strings['VLD_ERROR'] = $GLOBALS['app_strings']["\x4c\x4f\x47\x49\x4e\x5f\x4c\x4f\x47\x4f\x5f\x45\x52\x52\x4f\x52"];
 

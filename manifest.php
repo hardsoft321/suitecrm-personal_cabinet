@@ -16,7 +16,7 @@ $manifest = array(
             'version' => '1',
         ),
     ),
-    'version' => '1.0.1',
+    'version' => '1.1.0',
 );
 $installdefs = array(
     'id' => 'personal_cabinet',
@@ -85,6 +85,10 @@ $installdefs = array(
         ),
     ),
     'vardefs' => array(
+        array(
+            'from' => '<basepath>/source/vardefs/Accounts/personal_cabinet.php',
+            'to_module' => 'Accounts',
+        ),
         array(
             'from' => '<basepath>/source/vardefs/Users/personal_cabinet.php',
             'to_module' => 'Users',

@@ -84,17 +84,26 @@
         </div>
         <br>
         <div class="input-group">
-            <span class="input-group-addon logininput glyphicon glyphicon-home"></span>
-            <input type="text" class="form-control" placeholder="{sugar_translate module="Users" label="LBL_ORG_NAME"}"
-                title="{sugar_translate module="Users" label="LBL_ORG_NAME"}" required tabindex="3"
-                id="org_name" name="org_name" value='{$REG_ORG_NAME}' maxlength="{$ACC_FIELD_DEFS.name.len}" />
-        </div>
-        <br>
-        <div class="input-group">
             <span class="input-group-addon logininput glyphicon glyphicon-envelope"></span>
             <input type="email" class="form-control" placeholder="{sugar_translate module="Users" label="LBL_EMAIL"}"
-                title="{sugar_translate module="Users" label="LBL_EMAIL"}" required tabindex="4"
+                title="{sugar_translate module="Users" label="LBL_EMAIL"}" required tabindex="3"
                 id="email" name="email" value='{$REG_EMAIL}' maxlength="255" />
+        </div>
+        <br>
+        <div>
+            {html_radios name="org_action" options=$ORG_ACTION_OPTION selected=$REG_ORG_ACTION}
+            <div class="input-group" style="display:none" id="org_create_block">
+                <span class="input-group-addon logininput glyphicon glyphicon-home"></span>
+                <input type="text" class="form-control" placeholder="{sugar_translate module="Users" label="LBL_ORG_NAME"}"
+                    title="{sugar_translate module="Users" label="LBL_ORG_NAME"}" tabindex="4"
+                    id="org_name" name="org_name" value='{$REG_ORG_NAME}' maxlength="{$ACC_FIELD_DEFS.name.len}" />
+            </div>
+            <div class="input-group" style="display:none" id="org_join_block">
+                <span class="input-group-addon logininput glyphicon glyphicon-home"></span>
+                <input type="text" class="form-control" placeholder="{sugar_translate module="Users" label="LBL_ORG_CODE"}"
+                    title="{sugar_translate module="Users" label="LBL_ORG_CODE"}" tabindex="4"
+                    id="org_code" name="org_code" value='{$REG_ORG_CODE}' maxlength="10" />
+            </div>
         </div>
         <br>
         {if !empty($CAPTCHA_PUBLICKEY)}
@@ -107,3 +116,14 @@
     </div>
 </div>
 <!-- End login container -->
+<script>
+{literal}
+$(function() {
+    $('input[name="org_action"]').change(function() {
+        var val = $('input[name="org_action"]:checked').val();
+        $('#org_create_block').toggle(val == 'create');
+        $('#org_join_block').toggle(val == 'join');
+    }).change();
+});
+{/literal}
+</script>
