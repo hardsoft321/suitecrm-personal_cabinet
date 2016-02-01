@@ -16,7 +16,7 @@ $manifest = array(
             'version' => '1',
         ),
     ),
-    'version' => '1.1.0',
+    'version' => '1.1.1',
 );
 $installdefs = array(
     'id' => 'personal_cabinet',

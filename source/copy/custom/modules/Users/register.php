@@ -116,7 +116,15 @@ if(!empty($_POST['register'])) {
 
     if(isset($admin->settings['captcha_on'])&& $admin->settings['captcha_on']=='1' && !empty($admin->settings['captcha_private_key']) && !empty($admin->settings['captcha_public_key'])) {
         $captcha_verified = false;
-        if(!empty($_POST['g-recaptcha-response'])) {
+        if(!empty($_POST['autotest-key'])) { //обход для автотеста
+            $memcache = new Memcache;
+            $memcache->connect('localhost');
+            if(strpos($_POST['autotest-key'], 'selen_autotest_register_recaptcha') === 0 && $memcache->get($_POST['autotest-key']) === 'yes') {
+                $captcha_verified = true;
+                $memcache->delete($_POST['autotest-key']);
+            }
+        }
+        else if(!empty($_POST['g-recaptcha-response'])) {
             if($curl = curl_init()) {
                 curl_setopt($curl, CURLOPT_URL, 'https://www.google.com/recaptcha/api/siteverify');
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
@@ -146,6 +154,7 @@ if(!empty($_POST['register'])) {
         $user->status = 'Active';
         $user->employee_status = 'Active';
         $user->save();
+        clear_register_value('user_array', '');
 
         $groups = array();
         if($account) {
@@ -188,6 +197,7 @@ if(!empty($_POST['register'])) {
         if ($result['status'] == false && $result['message'] != '') {
             sugar_die($result['message']);
         }
+        unset($_SESSION['authenticated_user_id']);
         SugarApplication::redirect('index.php?module=Users&action=Login&loginErrorMessage=LBL_NEW_USER_PASSWORD_REG&default_user_name='.$user->user_name);
         return;
     }
